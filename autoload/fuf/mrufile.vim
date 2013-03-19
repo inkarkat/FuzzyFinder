@@ -94,7 +94,7 @@ function s:formatItemUsingCache(item)
   if !exists('s:cache[a:item.word]')
     if filereadable(a:item.word)
       let s:cache[a:item.word] = fuf#makePathItem(
-            \ fnamemodify(a:item.word, ':p:~'), strftime(g:fuf_timeFormat, a:item.time), 0)
+            \ fuf#canonicalizePath(fnamemodify(a:item.word, ':p:~'), strftime(g:fuf_timeFormat, a:item.time), 0))
     else
       let s:cache[a:item.word] = {}
     endif
@@ -129,7 +129,7 @@ function s:listAroundFiles(dir)
           \              fuf#glob(l9#concatPaths([a:dir, '*' ])) +
           \              fuf#glob(l9#concatPaths([a:dir, '.*']))
     call filter(s:aroundCache[a:dir], 'filereadable(v:val)')
-    call map(s:aroundCache[a:dir], 'fuf#makePathItem(fnamemodify(v:val, ":~"), "", 0)')
+    call map(s:aroundCache[a:dir], 'fuf#makePathItem(fuf#canonicalizePath(fnamemodify(v:val, ":~")), "", 0)')
     if len(g:fuf_mrufile_exclude)
       call filter(s:aroundCache[a:dir], 'v:val.word !~ g:fuf_mrufile_exclude')
     endif
@@ -200,6 +200,8 @@ endfunction
 
 "
 function s:handler.onModeEnterPost()
+  call self.canonicalPathSeparatorEntry()
+
   let self.searchAroundLevel = g:fuf_mrufile_searchAroundLevel
   call fuf#defineKeyMappingInHandler(g:fuf_mrufile_keyExpand,
         \                            'onCr(' . s:OPEN_TYPE_EXPAND . ')')
@@ -215,10 +217,10 @@ function s:handler.onModeEnterPost()
     let self.items = l9#concat(self.items)
   endif
   " NOTE: Comparing filenames is faster than bufnr('^' . fname . '$')
-  let bufNamePrev = fnamemodify(bufname(self.bufNrPrev), ':p:~')
+  let bufNamePrev = fuf#canonicalizePath(fnamemodify(bufname(self.bufNrPrev), ':p:~'))
   call filter(self.items, '!empty(v:val) && v:val.word !=# bufNamePrev')
   if g:fuf_mrufile_underCwd
-    let cwd = fnamemodify(getcwd(), ':p:~')
+    let cwd = fuf#canonicalizePath(fnamemodify(getcwd(), ':p:~'))
     call filter(self.items, 'stridx(v:val.word, cwd) == 0')
   endif
   call fuf#mapToSetSerialIndex(self.items, 1)
