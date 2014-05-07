@@ -13,6 +13,17 @@ endif
 " GLOBAL FUNCTIONS {{{1
 
 
+" make path separators uniform in the preferred type.
+if has('win32') || has('win64')
+function fuf#canonicalizePath( file )
+    return tr(a:file, '/\', repeat(l9#getPathSeparator(), 2))
+endfunction
+else
+function fuf#canonicalizePath( file )
+    return a:file
+endfunction
+endif
+
 " returns list of paths.
 " An argument for glob() is normalized in order to avoid a bug on Windows.
 if has('win32') || has('win64')
@@ -20,7 +31,7 @@ function fuf#glob(expr)
   " Substitutes "\", because on Windows, "**\" doesn't include ".\",
   " but "**/" include "./". I don't know why.
   " Also canonicalize to the preferred type of path separator.
-  return split(tr(glob(tr(a:expr, '\', '/')), '/\', repeat(l9#getPathSeparator(), 2)), "\n")
+  return split(fuf#canonicalizePath(glob(tr(a:expr, '\', '/'))), "\n")
 endfunction
 else
 function fuf#glob(expr)
@@ -1002,6 +1013,17 @@ function s:handlerBase.onRecallPattern(shift)
   else
     call setline('.', self.getPrompt() . patterns[self.indexRecall])
     call feedkeys("\<End>", 'n')
+  endif
+endfunction
+
+"
+function s:handlerBase.canonicalPathSeparatorEntry()
+  if has('win32') || has('win64')
+    if &shellslash
+      inoremap <buffer> <Bslash> /
+    else
+      inoremap <buffer> / <Bslash>
+    endif
   endif
 endfunction
 
