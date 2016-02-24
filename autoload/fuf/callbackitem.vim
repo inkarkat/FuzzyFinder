@@ -4,7 +4,7 @@
 "=============================================================================
 " LOAD GUARD {{{1
 
-if !l9#guardScriptLoading(expand('<sfile>:p'), 702, 100)
+if !l9#guardScriptLoading(expand('<sfile>:p'), 0, 0, [])
   finish
 endif
 
@@ -47,11 +47,11 @@ function fuf#callbackitem#launch(initialPattern, partialMatching, prompt, listen
   let s:forPath = a:forPath
   let s:items = copy(a:items)
   if s:forPath
-    call map(s:items, 'fuf#makePathItem(v:val, "", 1)')
+    call map(s:items, 'call("fuf#makePathItem", s:makeItem(v:val) + [1])')
     call fuf#mapToSetSerialIndex(s:items, 1)
     call fuf#mapToSetAbbrWithSnippedWordAsPath(s:items)
   else
-    call map(s:items, 'fuf#makeNonPathItem(v:val, "")')
+    call map(s:items, 'call("fuf#makeNonPathItem", s:makeItem(v:val))')
     call fuf#mapToSetSerialIndex(s:items, 1)
     call map(s:items, 'fuf#setAbbrWithFormattedWord(v:val, 1)')
   endif
@@ -63,6 +63,10 @@ endfunction
 " LOCAL FUNCTIONS/VARIABLES {{{1
 
 let s:MODE_NAME = expand('<sfile>:t:r')
+
+function s:makeItem(item)
+  return (type(a:item) == type([]) ? a:item : [a:item, ''])
+endfunction
 
 " }}}1
 "=============================================================================
