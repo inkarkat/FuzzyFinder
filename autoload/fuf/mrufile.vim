@@ -94,7 +94,7 @@ function s:formatItemUsingCache(item)
   if !exists('s:cache[a:item.word]')
     if filereadable(a:item.word)
       let s:cache[a:item.word] = fuf#makePathItem(
-            \ fuf#canonicalizePath(fnamemodify(a:item.word, ':p:~'), strftime(g:fuf_timeFormat, a:item.time), 0))
+            \ fuf#canonicalizePath(fnamemodify(a:item.word, ':p:~')), strftime(g:fuf_timeFormat, a:item.time), 0)
     else
       let s:cache[a:item.word] = {}
     endif
