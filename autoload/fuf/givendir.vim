@@ -112,6 +112,7 @@ endfunction
 
 "
 function s:handler.onModeEnterPost()
+  call self.canonicalPathSeparatorEntry()
 endfunction
 
 "
