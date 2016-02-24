@@ -64,7 +64,7 @@ endfunction
 function s:makeItem(nr)
   let fname = (empty(bufname(a:nr))
         \      ? '[No Name]'
-        \      : fnamemodify(bufname(a:nr), ':p:~:.'))
+        \      : fuf#canonicalizePath(fnamemodify(bufname(a:nr), ':p:~:.')))
   let time = (exists('s:bufTimes[a:nr]') ? s:bufTimes[a:nr] : 0)
   let item = fuf#makePathItem(fname, strftime(g:fuf_timeFormat, time), 0)
   let item.index = a:nr
@@ -168,6 +168,8 @@ endfunction
 
 "
 function s:handler.onModeEnterPost()
+  call self.canonicalPathSeparatorEntry()
+
   call fuf#defineKeyMappingInHandler(g:fuf_buffer_keyDelete,
         \                            'onCr(' . s:OPEN_TYPE_DELETE . ')')
   let self.items = range(1, bufnr('$'))
