@@ -142,6 +142,8 @@ endfunction
 
 "
 function s:handler.onModeEnterPost()
+  call self.canonicalPathSeparatorEntry()
+
   " NOTE: Comparing filenames is faster than bufnr('^' . fname . '$')
   let bufNamePrev = fnamemodify(bufname(self.bufNrPrev), ':p:~:.')
   " NOTE: Don't do this in onModeEnterPre()
