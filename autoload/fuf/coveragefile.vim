@@ -59,7 +59,7 @@ function s:enumItems()
     let s:cache[key] = l9#concat(map(copy(g:fuf_coveragefile_globPatterns),
           \                          'fuf#glob(v:val)'))
     call filter(s:cache[key], 'filereadable(v:val)') " filter out directories
-    call map(s:cache[key], 'fuf#makePathItem(fnamemodify(v:val, ":~:."), "", 0)')
+    call map(s:cache[key], 'fuf#makePathItem(fuf#canonicalizePath(fnamemodify(v:val, ":~:.")), "", 0)')
     if len(g:fuf_coveragefile_exclude)
       call filter(s:cache[key], 'v:val.word !~ g:fuf_coveragefile_exclude')
     endif
@@ -184,8 +184,10 @@ endfunction
 
 "
 function s:handler.onModeEnterPost()
+  call self.canonicalPathSeparatorEntry()
+
   " NOTE: Comparing filenames is faster than bufnr('^' . fname . '$')
-  let bufNamePrev = fnamemodify(bufname(self.bufNrPrev), ':~:.')
+  let bufNamePrev = fuf#canonicalizePath(fnamemodify(bufname(self.bufNrPrev), ':~:.'))
   let self.items = copy(s:enumItems())
   call filter(self.items, 'v:val.word !=# bufNamePrev')
 endfunction
