@@ -376,6 +376,8 @@ endfunction
 
 "
 function fuf#launch(modeName, initialPattern, partialMatching)
+  " Bugs: If preview window has opened, fuf won't work normal.
+  execute "pclose"
   if exists('s:runningHandler')
     call fuf#echoWarning('FuzzyFinder is running.')
   endif
