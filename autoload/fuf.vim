@@ -734,9 +734,6 @@ let s:FUF_BUF_NAME = '[fuf]'
 
 "
 function s:activateFufBuffer()
-  " lcd . : To avoid the strange behavior that unnamed buffer changes its cwd
-  "         if 'autochdir' was set on.
-  lcd .
   let cwd = getcwd()
   call l9#tempbuffer#openScratch(s:FUF_BUF_NAME, 'fuf', [], 1, 0, 1, {})
   resize 1 " for issue #21 
