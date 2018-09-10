@@ -161,6 +161,7 @@ function fuf#openBuffer(bufNr, mode, reuse)
   endif
   execute printf({
         \   s:OPEN_TYPE_CURRENT : '%sbuffer'          ,
+        \   s:OPEN_TYPE_ONLY    : '%sbuffer|only'     ,
         \   s:OPEN_TYPE_SPLIT   : '%ssbuffer'         ,
         \   s:OPEN_TYPE_VSPLIT  : 'vertical %ssbuffer',
         \   s:OPEN_TYPE_TAB     : 'tab %ssbuffer'     ,
@@ -175,10 +176,12 @@ function fuf#openFile(path, mode, reuse)
   else
     execute {
           \   s:OPEN_TYPE_CURRENT : 'edit '   ,
+          \   s:OPEN_TYPE_ONLY    : 'edit '   ,
           \   s:OPEN_TYPE_SPLIT   : 'split '  ,
           \   s:OPEN_TYPE_VSPLIT  : 'vsplit ' ,
           \   s:OPEN_TYPE_TAB     : 'tabedit ',
-          \ }[a:mode] . fnameescape(fnamemodify(a:path, ':~:.'))
+          \ }[a:mode] . fnameescape(fnamemodify(a:path, ':~:.')) .
+          \ (a:mode ==# s:OPEN_TYPE_ONLY ? '|only' : '')
   endif
 endfunction
 
@@ -186,26 +189,31 @@ endfunction
 function fuf#openTag(tag, mode)
   execute {
         \   s:OPEN_TYPE_CURRENT : 'tjump '          ,
+        \   s:OPEN_TYPE_ONLY    : 'tjump '          ,
         \   s:OPEN_TYPE_SPLIT   : 'stjump '         ,
         \   s:OPEN_TYPE_VSPLIT  : 'vertical stjump ',
         \   s:OPEN_TYPE_TAB     : 'tab stjump '     ,
-        \ }[a:mode] . a:tag
+        \ }[a:mode] . a:tag .
+        \ (a:mode ==# s:OPEN_TYPE_ONLY ? '|only' : '')
 endfunction
 
 "
 function fuf#openHelp(tag, mode)
   execute {
         \   s:OPEN_TYPE_CURRENT : 'help '         ,
+        \   s:OPEN_TYPE_ONLY    : 'help '         ,
         \   s:OPEN_TYPE_SPLIT   : 'help '         ,
         \   s:OPEN_TYPE_VSPLIT  : 'vertical help ',
         \   s:OPEN_TYPE_TAB     : 'tab help '   ,
-        \ }[a:mode] . a:tag
+        \ }[a:mode] . a:tag .
+        \ (a:mode ==# s:OPEN_TYPE_ONLY ? '|only' : '')
 endfunction
 
 "
 function fuf#prejump(mode)
   execute {
         \   s:OPEN_TYPE_CURRENT : ''         ,
+        \   s:OPEN_TYPE_ONLY    : 'only'     ,
         \   s:OPEN_TYPE_SPLIT   : 'split'    ,
         \   s:OPEN_TYPE_VSPLIT  : 'vsplit'   ,
         \   s:OPEN_TYPE_TAB     : 'tab split',
@@ -404,6 +412,7 @@ function fuf#launch(modeName, initialPattern, partialMatching)
   augroup END
   for [key, func] in [
         \   [ g:fuf_keyOpen          , 'onCr(' . s:OPEN_TYPE_CURRENT . ')' ],
+        \   [ g:fuf_keyOpenOnly      , 'onCr(' . s:OPEN_TYPE_ONLY    . ')' ],
         \   [ g:fuf_keyOpenSplit     , 'onCr(' . s:OPEN_TYPE_SPLIT   . ')' ],
         \   [ g:fuf_keyOpenVsplit    , 'onCr(' . s:OPEN_TYPE_VSPLIT  . ')' ],
         \   [ g:fuf_keyOpenTabpage   , 'onCr(' . s:OPEN_TYPE_TAB     . ')' ],
@@ -513,6 +522,7 @@ endfunction
 let s:TEMP_VARIABLES_GROUP = expand('<sfile>:p')
 let s:ABBR_SNIP_MASK = '...'
 let s:OPEN_TYPE_CURRENT = 1
+let s:OPEN_TYPE_ONLY    = 5
 let s:OPEN_TYPE_SPLIT   = 2
 let s:OPEN_TYPE_VSPLIT  = 3
 let s:OPEN_TYPE_TAB     = 4
